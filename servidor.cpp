@@ -18,6 +18,8 @@ using namespace std;
 class servidor
 {
 public:
+    servidor();
+    static void* llamadaleer(void *target);
 	static int connFd;
 	 int pId, portNo, listenFd;
     socklen_t len; //store size of the address
@@ -97,7 +99,7 @@ listen(listenFd, 5);
             cout << "Connection successful" << endl;
         }
         
-        pthread_create(&threadA, NULL, leersocket, NULL); 
+        pthread_create(&threadA, NULL, llamadaleer, NULL); 
        pthread_join(threadA, NULL);
      
     }
@@ -106,7 +108,25 @@ listen(listenFd, 5);
     
     }
     
-void leersocket ()
+
+
+void enviarmensaje(){
+char s[300];
+	cout << "Enter answer: ";
+        bzero(s, 301);
+        cin.getline(s, 300);   
+       // cout <<"escribiendole a " << connFd <<s<<endl; 
+        write(connFd,s,strlen(s));
+
+}
+
+
+
+
+};
+servidor::servidor();
+
+void servidor::leersocket ()
 {
     
     //cout << "Thread No: " << pthread_self() << endl;
@@ -123,7 +143,7 @@ void leersocket ()
         
         string tester (test);
         cout << "cliente dice"<<tester << endl;
-             
+             enviarmensaje();
         
         if(tester == "exit"){
      cout << "\nClosing thread and conn" << endl;
@@ -131,20 +151,15 @@ void leersocket ()
 }
 }
 
-void enviarmensaje(){
-char s[300];
-	cout << "Enter answer: ";
-        bzero(s, 301);
-        cin.getline(s, 300);   
-       // cout <<"escribiendole a " << connFd <<s<<endl; 
-        write(connFd,s,strlen(s));
-
+void* servidor::llamadaleer(void *target)
+{
+    ((servidor*)target)->leersocket();
 }
 
 
 
 
-};
+
 
 int main(int argc, char* argv[])
 {
